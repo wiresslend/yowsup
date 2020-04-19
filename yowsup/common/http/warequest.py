@@ -1,8 +1,11 @@
 from .waresponseparser import ResponseParser
 from yowsup.env import YowsupEnv
 
+import urllib
 import sys
 import logging
+import ssl, socket
+import hashlib
 from axolotl.ecc.curve import Curve
 from axolotl.ecc.ec import ECPublicKey
 from yowsup.common.tools import WATools
@@ -298,6 +301,8 @@ class WARequest(object):
             conn = None
 
         if not preview:
+            sock = socket.create_connection((conn.host, conn.port), conn.timeout, conn.source_address)
+            conn.sock = ssl.wrap_socket(sock, conn.key_file, conn.cert_file, ssl_version=ssl.PROTOCOL_TLSv1)
             logger.debug("Sending %s request to %s" % (reqType, path))
             conn.request(reqType, path, params, headers)
         else:
